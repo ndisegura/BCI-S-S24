@@ -44,7 +44,7 @@ def load_and_epoch_data(subject, data_directory):
     plt.show()
 
     
-    return eeg_epochs_target, eeg_epochs_nontarget, erp_times
+    return eeg_epochs,eeg_epochs_target, eeg_epochs_nontarget, erp_times
     
 def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times):
     
@@ -98,9 +98,16 @@ def resample_data(input_data, number_iterations):
             
                 resampled_data[iteration_index,channels_index,sample_index]=random.choice(input_data[:,channels_index,sample_index])
         
-    return resampled_data
+    return np.mean(resampled_data, axis=0)
 
-def bootstrap_eeg_erp (eeg_epochs_target, eeg_epochs_nontarget):
+def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget):
+    
+    #resample Target
+    resampled_mean_epoch_target=resample_data(eeg_epochs,eeg_epochs_target.shape[0])
+    resampled_mean_epoch_nontarget=resample_data(eeg_epochs,eeg_epochs_nontarget.shape[0])
+    
+    #Compute the stat
+    null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
     
     pass
 

@@ -31,7 +31,7 @@ data_file=f'{cwd}{data_directory}s{subject}.mat'
 
 #%% Part A: Load and Epoch the Data
 
-eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_epoch_data(subject, data_directory)
+eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_epoch_data(subject, data_directory)
 
 #%% Part B: Calculate and Plot Parametric Confidence Intervals
 
@@ -40,4 +40,5 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 #%% Part C: Bootstrap P values
 
 #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
-resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
+#resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
+analyze_p300_data.bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget)
