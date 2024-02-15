@@ -42,5 +42,45 @@ def load_and_epoch_data(subject, data_directory):
     plt.show()
 
     
-    return eeg_epochs_target, eeg_epochs_nontarget
+    return eeg_epochs_target, eeg_epochs_nontarget, erp_times
+    
+def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times):
+    
+    #Compute the Mean for Target and Non-targets
+    target_mean=np.mean(eeg_epochs_target, axis=0)
+    nontarget_mean=np.mean(eeg_epochs_nontarget, axis=0)
+    
+    #Compute the standard deviation and std error
+    #target_std=np.std(eeg_epochs_target, axis=0)/eeg_epochs_target.shape[0] #Divide by number of trials
+    target_std=np.std(eeg_epochs_target, axis=0)#I believe np.std aready divives by n
+    nontarget_std=np.std(eeg_epochs_nontarget, axis=0) 
+    #nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ eeg_epochs_nontarget.shape[0] #Divide by number of trials
+    
+    #Plot the results
+    fig, axs = plt.subplots(3,3)
+    
+    
+    for plot_index, ax in enumerate(axs.flatten()):
+        if plot_index ==8 :
+            ax.set_visible(False) #This channel doesn't exist
+        else:
+            ax.plot(erp_times, target_mean[plot_index,:], 'b', lw=1,label='target')              # Plot the ERP of condition A
+            ax.plot(erp_times, target_mean[plot_index,:] + 2 * target_std[plot_index,:], 'b:', lw=1)  # ... and include the upper CI
+            ax.plot(erp_times, target_mean[plot_index,:] - 2 * target_std[plot_index,:], 'b:', lw=1)  # ... and the lower CI
+            ax.plot(erp_times, nontarget_mean[plot_index,:], 'm', lw=1,label='non-target')              # Plot the ERP of condition A
+            ax.plot(erp_times, nontarget_mean[plot_index,:] + 2 * target_std[plot_index,:], 'm:', lw=1)  # ... and include the upper CI
+            ax.plot(erp_times, nontarget_mean[plot_index,:] - 2 * target_std[plot_index,:], 'm:', lw=1)  # ... and the lower CI
+            ax.set_title(f'Channel {plot_index}')
+            ax.set_xlabel('Time from flash onset (s)')
+            ax.set_ylabel('Voltage ($\mu$ V)')
+        
+            ax.legend()
+            ax.grid()
+            ax.axvline(x=0, color='black', linestyle='--')
+            ax.axhline(y=0, color='black', linestyle='--')
+    plt.tight_layout()
+    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    fig                                    # ... and show the plot
+    plt.show()
+    
     

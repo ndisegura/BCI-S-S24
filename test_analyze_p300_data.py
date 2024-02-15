@@ -29,6 +29,9 @@ data_file=f'{cwd}{data_directory}s{subject}.mat'
 
 #%% Part A: Load and Epoch the Data
 
-eeg_epochs_target, eeg_epochs_nontarget=analyze_p300_data.load_and_epoch_data(subject, data_directory)
+eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_epoch_data(subject, data_directory)
 
 #%% Part B: Calculate and Plot Parametric Confidence Intervals
+
+analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget,erp_times)
+
