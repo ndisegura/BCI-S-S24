@@ -21,10 +21,12 @@ import analyze_p300_data
 cwd=os.getcwd()
 sys.path.insert(0,f"{cwd}\course_software\BCIs-S24-main\\")
 
+#Close previosly drawn plots
+plt.close('all')
 
 #Build data file string
 data_directory='course_software/P300Data/'
-subject=3
+subject=4
 data_file=f'{cwd}{data_directory}s{subject}.mat'
 
 #%% Part A: Load and Epoch the Data
@@ -35,3 +37,7 @@ eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_ep
 
 analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget,erp_times)
 
+#%% Part C: Bootstrap P values
+
+#analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
+resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)

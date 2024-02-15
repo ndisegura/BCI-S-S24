@@ -15,6 +15,8 @@ import load_p300_data
 import plot_p300_erp
 import matplotlib.pyplot as plt
 import numpy as np
+import math
+import random
 
 #Make sure relative path work
 cwd=os.getcwd()
@@ -51,10 +53,10 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     nontarget_mean=np.mean(eeg_epochs_nontarget, axis=0)
     
     #Compute the standard deviation and std error
-    #target_std=np.std(eeg_epochs_target, axis=0)/eeg_epochs_target.shape[0] #Divide by number of trials
-    target_std=np.std(eeg_epochs_target, axis=0)#I believe np.std aready divives by n
-    nontarget_std=np.std(eeg_epochs_nontarget, axis=0) 
-    #nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ eeg_epochs_nontarget.shape[0] #Divide by number of trials
+    target_std=np.std(eeg_epochs_target, axis=0)/math.sqrt(eeg_epochs_target.shape[0]) #Divide by number of trials
+    #target_std=np.std(eeg_epochs_target, axis=0)#I believe np.std aready divives by n
+    #nontarget_std=np.std(eeg_epochs_nontarget, axis=0) 
+    nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ math.sqrt(eeg_epochs_nontarget.shape[0]) #Divide by number of trials
     
     #Plot the results
     fig, axs = plt.subplots(3,3)
@@ -82,5 +84,27 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
     fig                                    # ... and show the plot
     plt.show()
+    
+def resample_data(input_data, number_iterations):
+    #Declare numpy vector to store the re-sampled data
+    resampled_data=np.zeros((number_iterations,input_data.shape[1],input_data.shape[2]))
+    
+    #nested loop to iterate through pages and channels and select random samples
+    for iteration_index in range(number_iterations):
+    
+        for channels_index in range(input_data.shape[1]):
+            
+            for sample_index in range(input_data.shape[2]):
+            
+                resampled_data[iteration_index,channels_index,sample_index]=random.choice(input_data[:,channels_index,sample_index])
+        
+    return resampled_data
+
+def bootstrap_eeg_erp (eeg_epochs_target, eeg_epochs_nontarget):
+    
+    pass
+
+
+    
     
     
