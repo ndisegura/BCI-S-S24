@@ -100,16 +100,20 @@ def resample_data(input_data, number_iterations):
         
     return np.mean(resampled_data, axis=0)
 
-def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget):
+def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,bootstrap_count):
     
-    #resample Target
-    resampled_mean_epoch_target=resample_data(eeg_epochs,eeg_epochs_target.shape[0])
-    resampled_mean_epoch_nontarget=resample_data(eeg_epochs,eeg_epochs_nontarget.shape[0])
-    
-    #Compute the stat
-    null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
-    
-    pass
+    boostraped_distribution=np.zeros([bootstrap_count,eeg_epochs.shape[1],eeg_epochs.shape[2]])
+    for bootstrap_index in range(bootstrap_count):
+        print(f'Loop count:{bootstrap_index}')
+        #resample Target
+        resampled_mean_epoch_target=resample_data(eeg_epochs,eeg_epochs_target.shape[0])
+        resampled_mean_epoch_nontarget=resample_data(eeg_epochs,eeg_epochs_nontarget.shape[0])
+        
+        #Compute the stat
+        null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
+        #Build the new distribution
+        boostraped_distribution[bootstrap_index]=null_hypothesis_stat
+    return null_hypothesis_stat
 
 
     
