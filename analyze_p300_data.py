@@ -112,8 +112,8 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
         #Compute the stat
         null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
         #Build the new distribution
-        boostraped_distribution[bootstrap_index]=null_hypothesis_stat
-    return null_hypothesis_stat
+        boostraped_distribution[bootstrap_index,:,:]=null_hypothesis_stat
+    return boostraped_distribution
 
 
     

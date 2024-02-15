@@ -41,4 +41,4 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 
 #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
 #resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
-bootstraped_distribution=analyze_p300_data.bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,50)
+bootstraped_distribution=analyze_p300_data.bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,2)
