@@ -89,14 +89,19 @@ def resample_data(input_data, number_iterations):
     #Declare numpy vector to store the re-sampled data
     resampled_data=np.zeros((number_iterations,input_data.shape[1],input_data.shape[2]))
     
-    #nested loop to iterate through pages and channels and select random samples
-    for iteration_index in range(number_iterations):
+    ntrials=input_data.shape[0]
+    size=number_iterations
+    i = np.random.randint(ntrials, size=size)    # ... draw random trials,
+    resampled_data=input_data[i]
     
-        for channels_index in range(input_data.shape[1]):
+    #nested loop to iterate through pages and channels and select random samples
+    # for iteration_index in range(number_iterations):
+    
+    #     for channels_index in range(input_data.shape[1]):
             
-            for sample_index in range(input_data.shape[2]):
+    #         for sample_index in range(input_data.shape[2]):
             
-                resampled_data[iteration_index,channels_index,sample_index]=random.choice(input_data[:,channels_index,sample_index])
+    #             resampled_data[iteration_index,channels_index,sample_index]=random.choice(input_data[:,channels_index,sample_index])
         
     return np.mean(resampled_data, axis=0)
 
