@@ -118,8 +118,26 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
         null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
         #Build the new distribution
         boostraped_distribution[bootstrap_index,:,:]=null_hypothesis_stat
+    #return np.mean(boostraped_distribution, axis=0)
     return boostraped_distribution
 
+def test_null_hypothesis (boostraped_distribution, eeg_epochs_target, eeg_epochs_nontarget):
+    
+    mean_eeg_epochs_target=np.mean(eeg_epochs_target, axis=0)
+    mean_eeg_epochs_nontarget=np.mean(eeg_epochs_nontarget, axis=0)
+    stat_test=np.absolute(mean_eeg_epochs_target-mean_eeg_epochs_nontarget)
+    
+    #Compute Bootstrap mean variance and size
+    bootstrap_mean=np.mean(boostraped_distribution, axis=0)
+    bootstrap_var=np.var(boostraped_distribution,axis=0)
+    bootstrap_iterations=len(boostraped_distribution)
+    
+    for channel_index in range(boostraped_distribution.shape[1]):
+        
+        for sample_index in range(boostraped_distribution.shape[2]):
+            
+            
+    
 
     
     
