@@ -44,10 +44,19 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
 #resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
 bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
 
+
+#%% Part D: Multiple comparisons
+
+significant_samples,significant_plot_samples, corrected_p_values = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
 
 #%%
 
-epoch_diff_p_values, significant_samples = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
+
+
+
+
 
 

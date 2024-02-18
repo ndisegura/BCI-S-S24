@@ -18,6 +18,7 @@ import numpy as np
 import math
 import random
 import scipy as sci
+from mne.stats import fdr_correction
 
 #Make sure relative path work
 cwd=os.getcwd()
@@ -26,8 +27,8 @@ sys.path.insert(0,f"{cwd}\course_software\BCIs-S24-main\\")
 
 #Build data file string
 data_directory='course_software/P300Data/'
-subject=3
-data_file=f'{cwd}{data_directory}s{subject}.mat'
+# subject=3
+# data_file=f'{cwd}{data_directory}s{subject}.mat'
 
 
 def load_and_epoch_data(subject, data_directory):
@@ -41,8 +42,8 @@ def load_and_epoch_data(subject, data_directory):
     #Find Target and Non-Target Epochs
     eeg_epochs_target, eeg_epochs_nontarget = plot_p300_erp.get_erps(eeg_epochs, is_target_event)
     #Visualize ERPs
-    plot_p300_erp.plot_erps(eeg_epochs_target, eeg_epochs_nontarget, erp_times)
-    plt.show()
+    # plot_p300_erp.plot_erps(eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+    # plt.show()
 
     
     return eeg_epochs,eeg_epochs_target, eeg_epochs_nontarget, erp_times
@@ -64,15 +65,19 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     
     
     for plot_index, ax in enumerate(axs.flatten()):
-        if plot_index ==8 :
-            ax.set_visible(False) #This channel doesn't exist
+        if plot_index == 8:
+            if eeg_epochs_target.shape[0] == 8 :
+                ax.set_visible(False) #This channel doesn't exist
         else:
+            target_lower_ci = target_mean[plot_index,:] - 2 * target_std[plot_index,:]
+            target_upper_ci = target_mean[plot_index,:] + 2 * target_std[plot_index,:]
+            nontarget_lower_ci = nontarget_mean[plot_index,:] - 2 * nontarget_std[plot_index,:]
+            nontarget_upper_ci = nontarget_mean[plot_index,:] + 2 * nontarget_std[plot_index,:]
+            
             ax.plot(erp_times, target_mean[plot_index,:], 'b', lw=1,label='target')              # Plot the ERP of condition A
-            ax.plot(erp_times, target_mean[plot_index,:] + 2 * target_std[plot_index,:], 'b:', lw=1)  # ... and include the upper CI
-            ax.plot(erp_times, target_mean[plot_index,:] - 2 * target_std[plot_index,:], 'b:', lw=1)  # ... and the lower CI
+            ax.fill_between(erp_times,target_lower_ci,target_upper_ci)
             ax.plot(erp_times, nontarget_mean[plot_index,:], 'm', lw=1,label='non-target')              # Plot the ERP of condition A
-            ax.plot(erp_times, nontarget_mean[plot_index,:] + 2 * target_std[plot_index,:], 'm:', lw=1)  # ... and include the upper CI
-            ax.plot(erp_times, nontarget_mean[plot_index,:] - 2 * target_std[plot_index,:], 'm:', lw=1)  # ... and the lower CI
+            ax.fill_between(erp_times,nontarget_lower_ci,nontarget_upper_ci)
             ax.set_title(f'Channel {plot_index}')
             ax.set_xlabel('Time from flash onset (s)')
             ax.set_ylabel('Voltage ($\mu$ V)')
@@ -122,7 +127,7 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
     return bootstrapped_distribution
 
 
-def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times, alpha = 0.05):
+def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times):
     # Find sample size
     bootstrapped_sample_size = bootstrapped_distribution.shape[0]
     
@@ -132,14 +137,14 @@ def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs
     # Create empty array for p values at each time point and an boolean array 
     # to determine if each p value is significant
     epoch_diff_p_values = np.zeros([bootstrapped_distribution.shape[1],bootstrapped_distribution.shape[2]])
-    significant_samples = np.zeros([bootstrapped_distribution.shape[1],bootstrapped_distribution.shape[2]])
+    
     
     # Create list used to sum number of time absolute_sample_diff is greater
     # than bootstrapped samples at each time point
     is_greater = [] 
     
     for channel_index in range(bootstrapped_distribution.shape[1]):
-        print(channel_index)
+        # print(channel_index)
         for sample_index in range(bootstrapped_distribution.shape[2]):
             
             # Determine how many bootstrapped samples are smaller than the 
@@ -161,8 +166,7 @@ def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs
                 p_value = 1/bootstrapped_sample_size
             
             epoch_diff_p_values[channel_index,sample_index] = p_value
-            if epoch_diff_p_values[channel_index,sample_index] <= alpha:
-                significant_samples[channel_index,sample_index] = 1
+            
     
     # Uncomment code below to create a graph showing where we expect the 
     # sample mean to be significantly different than the bootstrapped mean!
@@ -180,10 +184,67 @@ def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs
     # plt.hlines(1, 0, 1, 'b')      # plot a horizontal line at 0
     #                           # ... and label the axes
     # plt.title('ERP of condition A with bootstrap confidence intervals')  # We define this function above!
-    return epoch_diff_p_values, significant_samples
+    return epoch_diff_p_values
 
 
-
-
+def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     
+    significant_samples, corrected_p_values = fdr_correction(epoch_diff_p_values, alpha)
+    
+    significant_plot_samples = np.where(significant_samples == True, 0, None)
+    # significant_samples = np.zeros([corrected_p_values.shape[0],corrected_p_values.shape[1]])
+    # for channel_index in range(corrected_p_values.shape[0]):
+    #     # print(channel_index)
+    #    for sample_index in range(corrected_p_values.shape[1]):
+    #        if corrected_p_values[channel_index,sample_index] <= alpha:
+    #            significant_samples[channel_index,sample_index] = 1
+    return significant_samples,significant_plot_samples, corrected_p_values
+    
+    
+def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_samples, erp_times):
+    
+    #Compute the Mean for Target and Non-targets
+    target_mean=np.mean(eeg_epochs_target, axis=0)
+    nontarget_mean=np.mean(eeg_epochs_nontarget, axis=0)
+    
+    #Compute the standard deviation and std error
+    target_std=np.std(eeg_epochs_target, axis=0)/math.sqrt(eeg_epochs_target.shape[0]) #Divide by number of trials
+    #target_std=np.std(eeg_epochs_target, axis=0)#I believe np.std aready divives by n
+    #nontarget_std=np.std(eeg_epochs_nontarget, axis=0) 
+    nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ math.sqrt(eeg_epochs_nontarget.shape[0]) #Divide by number of trials
+       
+    
+    #Plot the results
+    fig, axs = plt.subplots(3,3)
+    
+    
+    for plot_index, ax in enumerate(axs.flatten()):
+        if plot_index == 8:
+            if significant_samples.shape[0] == 8 :
+                ax.set_visible(False) #This channel doesn't exist
+        else:
+            # Plot target
+            ax.plot(erp_times, target_mean[plot_index,:], 'b', lw=1,label='target')
+            target_lower_ci = target_mean[plot_index,:] - 2 * target_std[plot_index,:]
+            target_upper_ci = target_mean[plot_index,:] + 2 * target_std[plot_index,:]
+            ax.fill_between(erp_times,target_lower_ci,target_upper_ci)
+            # Plot nontarget
+            nontarget_lower_ci = nontarget_mean[plot_index,:] - 2 * nontarget_std[plot_index,:]
+            nontarget_upper_ci = nontarget_mean[plot_index,:] + 2 * nontarget_std[plot_index,:]
+            ax.plot(erp_times, nontarget_mean[plot_index,:], 'm', lw=1,label='non-target')
+            ax.fill_between(erp_times,nontarget_lower_ci,nontarget_upper_ci)
+            # Plot significant values
+            ax.plot(erp_times, significant_samples[plot_index,:], color = 'black', marker = 'o', ms = 3.5, mfc = 'purple', lw=0,label='significant') # Plot the ERP of condition A
+            ax.set_title(f'Channel {plot_index}')
+            ax.set_xlabel('Time from flash onset (s)')
+            ax.set_ylabel('Voltage ($\mu$ V)')
+        
+            ax.legend()
+            ax.grid()
+            ax.axvline(x=0, color='black', linestyle='--')
+            ax.axhline(y=0, color='black', linestyle='--')
+    plt.tight_layout()
+    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    fig                                    # ... and show the plot
+    plt.show()
     
