@@ -16,6 +16,8 @@ import plot_p300_erp
 import matplotlib.pyplot as plt
 import numpy as np
 import analyze_p300_data
+import math
+import scipy as sci
 
 #Make sure relative path work
 cwd=os.getcwd()
@@ -41,4 +43,11 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 
 #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
 #resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
-bootstraped_distribution=analyze_p300_data.bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,1000)
+bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+
+
+#%%
+
+epoch_diff_p_values, significant_samples = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+
+

@@ -9,7 +9,7 @@ Dr. David Jangraw
 
 
 import os
-# Inport the necessry modules
+# Import the necessry modules
 import sys
 import load_p300_data
 import plot_p300_erp
@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import random
+import scipy as sci
 
 #Make sure relative path work
 cwd=os.getcwd()
@@ -107,7 +108,7 @@ def resample_data(input_data, number_iterations):
 
 def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,bootstrap_count):
     
-    boostraped_distribution=np.zeros([bootstrap_count,eeg_epochs.shape[1],eeg_epochs.shape[2]])
+    bootstrapped_distribution=np.zeros([bootstrap_count,eeg_epochs.shape[1],eeg_epochs.shape[2]])
     for bootstrap_index in range(bootstrap_count):
         print(f'Loop count:{bootstrap_index}')
         #resample Target
@@ -117,28 +118,72 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
         #Compute the stat
         null_hypothesis_stat=np.absolute(resampled_mean_epoch_target-resampled_mean_epoch_nontarget)
         #Build the new distribution
-        boostraped_distribution[bootstrap_index,:,:]=null_hypothesis_stat
-    #return np.mean(boostraped_distribution, axis=0)
-    return boostraped_distribution
+        bootstrapped_distribution[bootstrap_index,:,:]=null_hypothesis_stat
+    return bootstrapped_distribution
 
-def test_null_hypothesis (boostraped_distribution, eeg_epochs_target, eeg_epochs_nontarget):
-    
-    mean_eeg_epochs_target=np.mean(eeg_epochs_target, axis=0)
-    mean_eeg_epochs_nontarget=np.mean(eeg_epochs_nontarget, axis=0)
-    stat_test=np.absolute(mean_eeg_epochs_target-mean_eeg_epochs_nontarget)
-    
-    #Compute Bootstrap mean variance and size
-    bootstrap_mean=np.mean(boostraped_distribution, axis=0)
-    bootstrap_var=np.var(boostraped_distribution,axis=0)
-    bootstrap_iterations=len(boostraped_distribution)
-    
-    for channel_index in range(boostraped_distribution.shape[1]):
-        
-        for sample_index in range(boostraped_distribution.shape[2]):
-            
-            
-    
 
+def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times, alpha = 0.05):
+    # Find sample size
+    bootstrapped_sample_size = bootstrapped_distribution.shape[0]
     
+    # Find the absolute value difference of each sample
+    absolute_sample_diff = np.absolute(np.mean(eeg_epochs_target,axis=0) - np.mean(eeg_epochs_nontarget,axis=0))
+    
+    # Create empty array for p values at each time point and an boolean array 
+    # to determine if each p value is significant
+    epoch_diff_p_values = np.zeros([bootstrapped_distribution.shape[1],bootstrapped_distribution.shape[2]])
+    significant_samples = np.zeros([bootstrapped_distribution.shape[1],bootstrapped_distribution.shape[2]])
+    
+    # Create list used to sum number of time absolute_sample_diff is greater
+    # than bootstrapped samples at each time point
+    is_greater = [] 
+    
+    for channel_index in range(bootstrapped_distribution.shape[1]):
+        print(channel_index)
+        for sample_index in range(bootstrapped_distribution.shape[2]):
+            
+            # Determine how many bootstrapped samples are smaller than the 
+            # mean absolute value difference
+            for bootstrap_index in range(bootstrapped_distribution.shape[0]):
+                
+                if absolute_sample_diff[channel_index,sample_index]<=bootstrapped_distribution[bootstrap_index,channel_index,sample_index]:
+                    is_greater.append(0)
+                elif absolute_sample_diff[channel_index,sample_index]>bootstrapped_distribution[bootstrap_index,channel_index,sample_index]:
+                    is_greater.append(1)
+    
+            # Find p value for current sample
+            sum_greater = sum(is_greater)
+            is_greater = []
+            # Calculate p value based on the number of bootstrapped samples which
+            # are smaller than the target sample
+            p_value = (bootstrapped_sample_size - sum_greater) / bootstrapped_sample_size
+            if p_value == 0:
+                p_value = 1/bootstrapped_sample_size
+            
+            epoch_diff_p_values[channel_index,sample_index] = p_value
+            if epoch_diff_p_values[channel_index,sample_index] <= alpha:
+                significant_samples[channel_index,sample_index] = 1
+    
+    # Uncomment code below to create a graph showing where we expect the 
+    # sample mean to be significantly different than the bootstrapped mean!
+    
+    # EEGa = absolute_sample_diff[0,:]
+    # ERP0 = bootstrapped_distribution
+    # ERP0.sort(axis=0)         # Sort each column of the resampled ERP
+    # N = len(ERP0)             # Define the number of samples
+    # ciL = ERP0[int(0.025*N),0,:]  # Determine the lower CI
+    # ciU = ERP0[int(0.975*N),0,:]  # ... and the upper CI
+    # # mnA = EEGa.mean(0)        # Determine the ERP for condition A
+    # plt.plot(erp_times, EEGa, 'k', lw=3)   # ... and plot it
+    # plt.plot(erp_times, ciL, 'k:')        # ... and plot the lower CI
+    # plt.plot(erp_times, ciU, 'k:')        # ... and the upper CI
+    # plt.hlines(1, 0, 1, 'b')      # plot a horizontal line at 0
+    #                           # ... and label the axes
+    # plt.title('ERP of condition A with bootstrap confidence intervals')  # We define this function above!
+    return epoch_diff_p_values, significant_samples
+
+
+
+
     
     
