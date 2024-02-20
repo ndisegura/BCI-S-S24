@@ -216,7 +216,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
        
     
     #Plot the results
-    fig, axs = plt.subplots(3,3)
+    fig, axs = plt.subplots(3,3, figsize = (11,9))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -240,7 +240,8 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.set_xlabel('Time from flash onset (s)')
             ax.set_ylabel('Voltage ($\mu$ V)')
         
-            ax.legend()
+            ax.legend(loc = 'upper left', fontsize = 7)
+            # ax.set_size_inches(8, 6)
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
