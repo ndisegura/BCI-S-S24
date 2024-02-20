@@ -49,7 +49,11 @@ epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distrib
 
 #%% Part D: Multiple comparisons
 
+<<<<<<< Updated upstream
 significant_samples,significant_plot_samples, corrected_p_values = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
+=======
+significant_samples,significant_plot_samples, corrected_p_values, is_significant_int = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
+>>>>>>> Stashed changes
 
 #%%
 

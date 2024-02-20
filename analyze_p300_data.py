@@ -192,16 +192,27 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     significant_samples, corrected_p_values = fdr_correction(epoch_diff_p_values, alpha)
     
     significant_plot_samples = np.where(significant_samples == True, 0, None)
+<<<<<<< Updated upstream
+=======
+    is_significant_int = significant_samples = np.where(significant_samples == True, 1, 0)
+>>>>>>> Stashed changes
     # significant_samples = np.zeros([corrected_p_values.shape[0],corrected_p_values.shape[1]])
     # for channel_index in range(corrected_p_values.shape[0]):
     #     # print(channel_index)
     #    for sample_index in range(corrected_p_values.shape[1]):
     #        if corrected_p_values[channel_index,sample_index] <= alpha:
     #            significant_samples[channel_index,sample_index] = 1
+<<<<<<< Updated upstream
     return significant_samples,significant_plot_samples, corrected_p_values
     
     
 def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_samples, erp_times):
+=======
+    return significant_samples,significant_plot_samples, corrected_p_values, is_significant_int
+    
+    
+def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times):
+>>>>>>> Stashed changes
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -220,7 +231,11 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     
     for plot_index, ax in enumerate(axs.flatten()):
         if plot_index == 8:
+<<<<<<< Updated upstream
             if significant_samples.shape[0] == 8 :
+=======
+            if significant_plot_samples.shape[0] == 8 :
+>>>>>>> Stashed changes
                 ax.set_visible(False) #This channel doesn't exist
         else:
             # Plot target
@@ -234,7 +249,11 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.plot(erp_times, nontarget_mean[plot_index,:], 'm', lw=1,label='non-target')
             ax.fill_between(erp_times,nontarget_lower_ci,nontarget_upper_ci)
             # Plot significant values
+<<<<<<< Updated upstream
             ax.plot(erp_times, significant_samples[plot_index,:], color = 'black', marker = 'o', ms = 3.5, mfc = 'purple', lw=0,label='significant') # Plot the ERP of condition A
+=======
+            ax.plot(erp_times, significant_plot_samples[plot_index,:], color = 'black', marker = 'o', ms = 3.5, mfc = 'purple', lw=0,label='significant') # Plot the ERP of condition A
+>>>>>>> Stashed changes
             ax.set_title(f'Channel {plot_index}')
             ax.set_xlabel('Time from flash onset (s)')
             ax.set_ylabel('Voltage ($\mu$ V)')
