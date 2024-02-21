@@ -61,7 +61,7 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ math.sqrt(eeg_epochs_nontarget.shape[0]) #Divide by number of trials
     
     #Plot the results
-    fig, axs = plt.subplots(3,3)
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -86,8 +86,8 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
-    plt.tight_layout()
     fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    plt.tight_layout()
     fig                                    # ... and show the plot
     plt.show()
     
@@ -216,7 +216,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
        
     
     #Plot the results
-    fig, axs = plt.subplots(3,3, figsize=(11,9))
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -244,8 +244,8 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
-    plt.tight_layout()
     fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    plt.tight_layout()
     fig                                    # ... and show the plot
     plt.show()
     
@@ -258,7 +258,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
         #Load and Epoch subject data
         eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
         #Compute Bootstrapped Distribution and p-values
-        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
         epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
         #Compute FDR Correctec P-values
         significant_samples,significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
@@ -275,7 +275,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
 
 def plot_significance_across_subjects(significant_subject_count,erp_times):
     #Plot the results
-    fig, axs = plt.subplots(3,3, figsize=(11,9))
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -293,14 +293,15 @@ def plot_significance_across_subjects(significant_subject_count,erp_times):
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
-    plt.tight_layout()
     fig.suptitle(' Significant Samples Across Subjects ')
+    plt.tight_layout()
+    
     fig                                    # ... and show the plot
     plt.show()
-def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean):
+def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
     
     is_p3b_range = np.zeros(erp_times.shape)
-    is_p3b_range=np.where(((erp_times>=0.25)&(erp_times<=0.5)), 1,0)
+    is_p3b_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
     p3b_target_range=combined_erp_target_mean[:,np.where(is_p3b_range)]
     p3b_target_range=np.squeeze(p3b_target_range,axis=1)
     p3b_nontarget_range=combined_erp_nontarget_mean[:,np.where(is_p3b_range)]
