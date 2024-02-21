@@ -299,8 +299,11 @@ def plot_significance_across_subjects(significant_subject_count,erp_times):
     plt.show()
 def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean):
     
-    is_p3b_range=erp_times[(erp_times>=0.25)&(erp_times<=0.5)]
-    p3b_target_range=combined_erp_target_mean[:,is_p3b_range]
-    p3b_nontarget_range=combined_erp_nontarget_mean[:,is_p3b_range]
+    is_p3b_range = np.zeros(erp_times.shape)
+    is_p3b_range=np.where(((erp_times>=0.25)&(erp_times<=0.5)), 1,0)
+    p3b_target_range=combined_erp_target_mean[:,np.where(is_p3b_range)]
+    p3b_target_range=np.squeeze(p3b_target_range,axis=1)
+    p3b_nontarget_range=combined_erp_nontarget_mean[:,np.where(is_p3b_range)]
+    p3b_nontarget_range=np.squeeze(p3b_nontarget_range,axis=1)
     
     return p3b_target_range,p3b_nontarget_range

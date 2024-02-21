@@ -18,7 +18,7 @@ import numpy as np
 import analyze_p300_data
 import math
 import scipy as sci
-import plot_topo
+from course_software import plot_topo
 
 #Make sure relative path work
 cwd=os.getcwd()
@@ -64,9 +64,12 @@ significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontar
 analyze_p300_data.plot_significance_across_subjects(significant_subject_count,erp_times)
 
 #%% Part F: Plot Spatial Map
-channel_names=['PO7','PO8','Fz','P3','P4','Oz','P6','Cz']
-analyze_p300_data.get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean)
-plot_topo.plot_topo(channel_names,combined_erp_nontarget_mean)
+
+p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean)
+
+#%%
+channel_names=['Cz','PO8','Pz','P3','P4','Oz','Fz','PO7']
+plot_topo.plot_topo(channel_names,p3b_target_range)
 #a=plot_topo.get_channel_names()
 
 
