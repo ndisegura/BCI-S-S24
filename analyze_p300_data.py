@@ -48,7 +48,7 @@ def load_and_epoch_data(subject, data_directory):
     
     return eeg_epochs,eeg_epochs_target, eeg_epochs_nontarget, erp_times
     
-def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times):
+def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times, subject = 3):
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -86,7 +86,7 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
-    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    fig.suptitle(f'Subject {subject} P300 ERPs 95% Confidence Intervals ')
     plt.tight_layout()
     fig                                    # ... and show the plot
     plt.show()
@@ -202,7 +202,7 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     return significant_plot_samples, corrected_p_values, is_significant_int
     
     
-def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times):
+def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3):
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -244,7 +244,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
-    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
+    fig.suptitle(f'Subject {subject} P300 ERPs 95% Confidence Intervals ')
     plt.tight_layout()
     fig                                    # ... and show the plot
     plt.show()

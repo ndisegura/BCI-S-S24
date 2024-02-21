@@ -56,10 +56,10 @@ analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontar
 
 #%% Part E: Evaluate across subjects
 #Define constants
-First_Subject_index=3
-Last_Subject_Index=10
+first_subject_index=3
+last_subject_index=10
 data_path=cwd+data_directory+"s"
-significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean=analyze_p300_data.analyze_across_subjects(First_Subject_index,Last_Subject_Index,data_directory)
+significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean=analyze_p300_data.analyze_across_subjects(first_subject_index,last_subject_index,data_directory)
 
 analyze_p300_data.plot_significance_across_subjects(significant_subject_count,erp_times)
 
@@ -69,8 +69,6 @@ p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_p3b_range(erp_times,c
 
 #%%
 channel_names=['P4','PO8','P3','PO7','Oz','Fz','Cz','Pz']
-# channel_names=['PO8','Oz','P3','PO7','P4','Pz','Fz','Cz']
-# channel_names = ['PO7','Oz','P4','P3','Fz','Cz','PO8','Pz']
 plot_topo.plot_topo(channel_names,p3b_target_range)
 #a=plot_topo.get_channel_names()
 
