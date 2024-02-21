@@ -216,7 +216,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
        
     
     #Plot the results
-    fig, axs = plt.subplots(3,3)
+    fig, axs = plt.subplots(3,3, figsize=(11,9))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -240,7 +240,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.set_xlabel('Time from flash onset (s)')
             ax.set_ylabel('Voltage ($\mu$ V)')
         
-            ax.legend()
+            ax.legend(loc = 'upper left', fontsize=7)
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
@@ -249,3 +249,51 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     fig                                    # ... and show the plot
     plt.show()
     
+def analyze_across_subjects(first_subject_index,last_subject_index,data_directory, array_shape=(8,384)):
+    significant_subject_count=np.zeros(array_shape)
+    subjects_target_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    subjects_nontarget_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    for subject_index, subject_id in enumerate(range(first_subject_index,last_subject_index+1)):
+        print(f'Subject Index:{subject_index}')
+        #Load and Epoch subject data
+        eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
+        #Compute Bootstrapped Distribution and p-values
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
+        epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+        #Compute FDR Correctec P-values
+        significant_samples,significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
+        #Accumulate number of subject that pass the significant threshold
+        significant_subject_count=significant_subject_count+is_significant_int
+        
+        #Compute the Mean for Target and Non-targets
+        subjects_target_mean[subject_index,:,:]=np.mean(eeg_epochs_target, axis=0)
+        subjects_nontarget_mean[subject_index,:,:]=np.mean(eeg_epochs_nontarget, axis=0)
+        
+    combined_erp_target_mean=np.mean(subjects_target_mean,axis=0)
+    combined_erp_nontarget_mean=np.mean(subjects_nontarget_mean,axis=0)
+    return significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean
+
+def plot_significance_across_subjects(significant_subject_count,erp_times):
+    #Plot the results
+    fig, axs = plt.subplots(3,3, figsize=(11,9))
+    
+    
+    for plot_index, ax in enumerate(axs.flatten()):
+        if plot_index == 8:
+            if significant_subject_count.shape[0] == 8 :
+                ax.set_visible(False) #This channel doesn't exist
+        else:
+            # Plot target
+            ax.plot(erp_times, significant_subject_count[plot_index,:], 'b', lw=1,label='Significant Samples')
+            ax.set_title(f'Channel {plot_index}')
+            ax.set_xlabel('Time from flash onset (s)')
+            ax.set_ylabel('Significant Subjects')
+        
+            ax.legend(loc = 'upper left', fontsize=7)
+            ax.grid()
+            ax.axvline(x=0, color='black', linestyle='--')
+            ax.axhline(y=0, color='black', linestyle='--')
+    plt.tight_layout()
+    fig.suptitle(' Significant Samples Across Subjects ')
+    fig                                    # ... and show the plot
+    plt.show()

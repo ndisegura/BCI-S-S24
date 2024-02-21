@@ -43,7 +43,7 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 
 #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
 #resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
-bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,1000)
 epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
 
 
@@ -51,12 +51,15 @@ epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distrib
 
 significant_samples,significant_plot_samples, corrected_p_values, is_significant_int = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
 
-#%%
-
 analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
 
+#%% Part E: Evaluate across subjects
+#Define constants
+First_Subject_index=3
+Last_Subject_Index=10
+data_path=cwd+data_directory+"s"
+significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean=analyze_p300_data.analyze_across_subjects(First_Subject_index,Last_Subject_Index,data_directory)
 
-
-
+analyze_p300_data.plot_significance_across_subjects(significant_subject_count,erp_times)
 
 
