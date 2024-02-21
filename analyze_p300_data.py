@@ -297,3 +297,10 @@ def plot_significance_across_subjects(significant_subject_count,erp_times):
     fig.suptitle(' Significant Samples Across Subjects ')
     fig                                    # ... and show the plot
     plt.show()
+def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean):
+    
+    is_p3b_range=erp_times[(erp_times>=0.25)&(erp_times<=0.5)]
+    p3b_target_range=combined_erp_target_mean[:,is_p3b_range]
+    p3b_nontarget_range=combined_erp_nontarget_mean[:,is_p3b_range]
+    
+    return p3b_target_range,p3b_nontarget_range
