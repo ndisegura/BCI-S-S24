@@ -47,10 +47,23 @@ def load_and_epoch_data(subject, data_directory):
         
     Returns
     -------
+<<<<<<< HEAD
+    eeg_epochs : Numpy array of floats of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+=======
+    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+>>>>>>> origin/skyler_edits
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch 
@@ -80,9 +93,15 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
 
     Parameters
     ----------
+<<<<<<< HEAD
     eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+=======
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+>>>>>>> origin/skyler_edits
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
     subject : String, optional. String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
@@ -129,8 +148,8 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
+    fig.suptitle(f'Subject {subject} P300 ERPs 95% Confidence Intervals ')
     plt.tight_layout()
-    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
     fig                                    # ... and show the plot
     plt.show()
     
@@ -332,10 +351,11 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     #    for sample_index in range(corrected_p_values.shape[1]):
     #        if corrected_p_values[channel_index,sample_index] <= alpha:
     #            significant_samples[channel_index,sample_index] = 1
-    return significant_samples,significant_plot_samples, corrected_p_values, is_significant_int
+    return significant_plot_samples, corrected_p_values, is_significant_int
     
     
 def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
+<<<<<<< HEAD
     """
     Function to plot the mean, standard deviation error and significant differences dot for the target and non target erps    
 
@@ -361,6 +381,8 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     None.
 
     """
+=======
+>>>>>>> origin/skyler_edits
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -407,6 +429,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     plt.savefig(f"{save_location}/P300_S{subject}_erps_significance.png")
     
 def analyze_across_subjects(first_subject_index,last_subject_index,data_directory, array_shape=(8,384)):
+<<<<<<< HEAD
     """
     This function executes several of the previous functions to analyze and accumulate the number of significant differenced in the erp values
     across subjects. The function loops through each subject and stores and accumulates the number of times the p-values are significant
@@ -442,26 +465,37 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
     subjects_target_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
     #Same for the non-target means
     subjects_nontarget_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+=======
+    significant_subject_count=np.zeros(array_shape)
+    subjects_target_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    subjects_nontarget_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+>>>>>>> origin/skyler_edits
     for subject_index, subject_id in enumerate(range(first_subject_index,last_subject_index+1)):
         print(f'Subject Index:{subject_index}')
         #Load and Epoch subject data
         eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
         #Compute Bootstrapped Distribution and p-values
+<<<<<<< HEAD
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
+=======
         bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+>>>>>>> origin/skyler_edits
         epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
         #Compute FDR Correctec P-values
         significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
         #Plot and save each subject's ERPs
+<<<<<<< HEAD
+        plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
         #Accumulate number of subject that pass the significant threshold
         significant_subject_count=significant_subject_count+is_significant_int
         
-        #Compute the median for Target and Non-targets
-        subjects_target_median[subject_index,:,:]=np.median(eeg_epochs_target, axis=0)
-        subjects_nontarget_median[subject_index,:,:]=np.median(eeg_epochs_nontarget, axis=0)
-        
-    combined_erp_target_median=np.median(subjects_target_median,axis=0)
-    combined_erp_nontarget_median=np.median(subjects_nontarget_median,axis=0)
-    return significant_subject_count,erp_times,combined_erp_target_median,combined_erp_nontarget_median,subjects_target_median,subjects_nontarget_median
+        #Compute the Mean for Target and Non-targets
+        subjects_target_mean[subject_index,:,:]=np.mean(eeg_epochs_target, axis=0)
+        subjects_nontarget_mean[subject_index,:,:]=np.mean(eeg_epochs_nontarget, axis=0)
+    #Find combined mean across subject from the mean across trials for target and non-target erp   
+    combined_erp_target_mean=np.mean(subjects_target_mean,axis=0)
+    combined_erp_nontarget_mean=np.mean(subjects_nontarget_mean,axis=0)
+    return significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean
 
 def plot_significance_across_subjects(significant_subject_count,erp_times,save_location='./'):
     """
@@ -481,6 +515,21 @@ def plot_significance_across_subjects(significant_subject_count,erp_times,save_l
 
     """
     
+=======
+        plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times,subject_id)
+        #Accumulate number of subject that pass the significant threshold
+        significant_subject_count=significant_subject_count+is_significant_int
+        
+        #Compute the median for Target and Non-targets
+        subjects_target_median[subject_index,:,:]=np.median(eeg_epochs_target, axis=0)
+        subjects_nontarget_median[subject_index,:,:]=np.median(eeg_epochs_nontarget, axis=0)
+        
+    combined_erp_target_median=np.median(subjects_target_median,axis=0)
+    combined_erp_nontarget_median=np.median(subjects_nontarget_median,axis=0)
+    return significant_subject_count,erp_times,combined_erp_target_median,combined_erp_nontarget_median,subjects_target_median,subjects_nontarget_median
+
+def plot_significance_across_subjects(significant_subject_count,erp_times,save_location='./'):
+>>>>>>> origin/skyler_edits
     #Plot the results
     fig, axs = plt.subplots(3,3, figsize=(9,8))
     
@@ -508,8 +557,8 @@ def plot_significance_across_subjects(significant_subject_count,erp_times,save_l
     plt.savefig(f'{save_location}/significant_subjects.png')
     
     
-    
-def get_erp_range(erp_times,subjects_target_median,subjects_nontarget_median, start_time = 0.25, end_time = 0.5):
+<<<<<<< HEAD
+def get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
     """
     Function to extract the channels and samples corresponding to the range specified between the times in start_time and end_time 
 
@@ -540,9 +589,18 @@ def get_erp_range(erp_times,subjects_target_median,subjects_nontarget_median, st
     
     is_erp_range = np.zeros(erp_times.shape)
     is_erp_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
+    erp_target_range=combined_erp_target_mean[:,np.where(is_erp_range)]
+    erp_target_range=np.squeeze(erp_target_range,axis=1)
+    erp_nontarget_range=combined_erp_nontarget_mean[:,np.where(is_erp_range)]
+=======
+def get_erp_range(erp_times,subjects_target_median,subjects_nontarget_median, start_time = 0.25, end_time = 0.5):
+    
+    is_erp_range = np.zeros(erp_times.shape)
+    is_erp_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
     erp_target_range=subjects_target_median[:,np.where(is_erp_range)]
     erp_target_range=np.squeeze(erp_target_range,axis=1)
     erp_nontarget_range=subjects_nontarget_median[:,np.where(is_erp_range)]
+>>>>>>> origin/skyler_edits
     erp_nontarget_range=np.squeeze(erp_nontarget_range,axis=1)
     
     return erp_target_range,erp_nontarget_range
