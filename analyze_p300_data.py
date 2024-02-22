@@ -5,6 +5,10 @@ BME 6770: BCI's Lab 02
 Dr. David Jangraw
 2/12/2024
 
+This module provides functions for processing and analyzing raw EEG data from the subjects in the Guger et al. 2009 paper.
+The fuunctions allow to load the data from the .mat files, calculate confidence intervals, perform the bootstraping statistics technique,
+compute p-values, analyze across subjects and to plot significance between the target and non target erp events. 
+
 """
 
 
@@ -32,6 +36,30 @@ data_directory='course_software/P300Data/'
 
 
 def load_and_epoch_data(subject, data_directory):
+    """
+    Loads data from Matlab .Mat files and arranges the data in a 3-dimentional array consisting of event epochs, eeg channels and samples
+
+    Parameters
+    ----------
+    subject : String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
+        
+    data_directory : String specifying the location of the base of the project 
+        
+    Returns
+    -------
+    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch 
+        
+
+    """
     
     #Load Training Data
     [eeg_time,eeg_data,rowcol_id,is_target]=load_p300_data.load_training_eeg(subject, data_directory=data_directory);
