@@ -428,10 +428,10 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
     Returns
     -------
     significant_subject_count : Numpy array of integers of size CHANNELS x SAMPLES. Array containing the accumulated count when a p-value was 
-    significant for the current subject and added to the 
-        DESCRIPTION.
+    significant for the current subject and added to the previos value (increment by 1)
+        
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
-        DESCRIPTION.
+        
     combined_erp_target_mean : Numpy array of float of size TOTAL_SUBJECT_COUNT x CHANNEL x SAMPLES. This array contains the eeg target ERP 
     mean combined across all the subjects.
         
@@ -468,6 +468,23 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
     return significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean
 
 def plot_significance_across_subjects(significant_subject_count,erp_times,save_location='./'):
+    """
+    Function to plot the significance obtained across subjects. The function does not return any values.
+
+    Parameters
+    ----------
+    significant_subject_count : Numpy array of integers of size CHANNELS x SAMPLES. Array containing the accumulated count when a p-value was 
+    significant for the current subject and added to the previos value (increment by 1)
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+    save_location : string to specify where should the figure be saved with respect to the project base location. Optional
+    The default is './'.
+
+    Returns
+    -------
+    None.
+
+    """
+    
     #Plot the results
     fig, axs = plt.subplots(3,3, figsize=(9,8))
     
@@ -496,6 +513,33 @@ def plot_significance_across_subjects(significant_subject_count,erp_times,save_l
     
     
 def get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
+    """
+    Function to extract the channels and samples corresponding to the range specified between the times in start_time and end_time 
+
+    Parameters
+    ----------
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+    
+    combined_erp_target_mean : Numpy array of float of size TOTAL_SUBJECT_COUNT x CHANNEL x SAMPLES. This array contains the eeg target ERP 
+    mean combined across all the subjects.
+        
+    combined_erp_nontarget_mean : Numpy array of float of size TOTAL_SUBJECT_COUNT x CHANNEL x SAMPLES. This array contains the non target eeg ERP 
+    mean combined across all the subjects.
+    
+    start_time : Float, optional. Specifies the time start for the range
+        The default is 0.25.
+    end_time : Float, optional. Specifies the time end for the range
+       The default is 0.5.
+
+    Returns
+    -------
+    erp_target_range : Numpy array of floats containing the CHANNEL and SAMPLE data for the range of time between "start_time" and "end_time"
+    for target erps
+        
+    erp_nontarget_range : Numpy array of floats containing the CHANNEL and SAMPLE data for the range of time between "start_time" and "end_time"
+    for non-target erps
+
+    """
     
     is_erp_range = np.zeros(erp_times.shape)
     is_erp_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
