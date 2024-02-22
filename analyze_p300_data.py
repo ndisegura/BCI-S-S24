@@ -340,7 +340,7 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     
 def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
     """
-    Function to plot the mean, standard deviation error and significant differences dot     
+    Function to plot the mean, standard deviation error and significant differences dot for the target and non target erps    
 
     Parameters
     ----------
@@ -410,8 +410,40 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     plt.savefig(f"{save_location}/P300_S{subject}_erps_significance.png")
     
 def analyze_across_subjects(first_subject_index,last_subject_index,data_directory, array_shape=(8,384)):
+    """
+    This function executes several of the previous functions to analyze and accumulate the number of significant differenced in the erp values
+    across subjects. The function loops through each subject and stores and accumulates the number of times the p-values are significant
+
+    Parameters
+    ----------
+    first_subject_index : Integer, index of first subject to be evaluated. Inclusive
+        
+    last_subject_index : Integer, index of last subject to be evaluated. Inclusive
+        
+    data_directory : String containing the relative path to the folder containing the .Mat files for all the subjects.
+       
+    array_shape : Tuple, Describes the shape of the array that will hold the count of significant p-values across all subject included by the 
+    first_subject_index and last_subject_index. The default is (8,384).
+
+    Returns
+    -------
+    significant_subject_count : Numpy array of integers of size CHANNELS x SAMPLES. Array containing the accumulated count when a p-value was 
+    significant for the current subject and added to the 
+        DESCRIPTION.
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+        DESCRIPTION.
+    combined_erp_target_mean : Numpy array of float of size TOTAL_SUBJECT_COUNT x CHANNEL x SAMPLES. This array contains the eeg target ERP 
+    mean combined across all the subjects.
+        
+    combined_erp_nontarget_mean : Numpy array of float of size TOTAL_SUBJECT_COUNT x CHANNEL x SAMPLES. This array contains the non target eeg ERP 
+    mean combined across all the subjects.
+
+    """
+    #Declare variable to hold the counts
     significant_subject_count=np.zeros(array_shape)
+    #Array to store the means across subjects x channel x samples
     subjects_target_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    #Same for the non-target means
     subjects_nontarget_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
     for subject_index, subject_id in enumerate(range(first_subject_index,last_subject_index+1)):
         print(f'Subject Index:{subject_index}')
@@ -430,7 +462,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
         #Compute the Mean for Target and Non-targets
         subjects_target_mean[subject_index,:,:]=np.mean(eeg_epochs_target, axis=0)
         subjects_nontarget_mean[subject_index,:,:]=np.mean(eeg_epochs_nontarget, axis=0)
-        
+    #Find combined mean across subject from the mean across trials for target and non-target erp   
     combined_erp_target_mean=np.mean(subjects_target_mean,axis=0)
     combined_erp_nontarget_mean=np.mean(subjects_nontarget_mean,axis=0)
     return significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean
