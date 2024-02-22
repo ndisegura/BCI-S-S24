@@ -3,9 +3,13 @@
 """
 plot_topo.py
 
-Created on Mon Sep  6 13:06:10 2021
+Plots a topographic map (or "topomap") of the scalp distribution of data on
+specified EEG channels.
 
+Created on Mon Sep  6 13:06:10 2021
 @author: djangraw
+
+Updated 2/20/24 by DJ - make topomap plot in current axes (accommodating change in MNE defaults)
 """
 
 # Import packages
@@ -30,9 +34,9 @@ def plot_topo(channel_names=[], channel_data=[],title='',cbar_label='Voltage (uV
     cbar_label : str, optional
         Label to go on the colorbar. The default is 'Voltage (uV)'.
     montage_name : str, optional
-        Name of the channel montage to use (must be valid input to 
+        Name of the channel montage to use (must be valid input to
         mne.channels.make_standard_montage). The default is 'biosemi64'.
-    
+
     Returns
     -------
     im : image
@@ -50,25 +54,25 @@ def plot_topo(channel_names=[], channel_data=[],title='',cbar_label='Voltage (uV
     # Create MNE info struct
     fake_info = mne.create_info(ch_names=channel_names, sfreq=250.,
                                 ch_types='eeg')
-    
+
     # Prepare data
     if len(channel_data)==0: # if no input was given
         channel_data = np.random.normal(size=(n_channels, 1)) # plot random data by default
     if channel_data.ndim==1: # if it's a 1D array
         channel_data = channel_data.reshape([-1,1]) # make it 2D
-    
+
     # Create MNE evoked array object with our data & channel info
     fake_evoked = mne.EvokedArray(channel_data, fake_info)
     fake_evoked.set_montage(montage) # set montage (channel locations)
 
     # Clear current axes
-    plt.cla()    
-    # Plot topomap on current axes    
-    im,_ = mne.viz.plot_topomap(fake_evoked.data[:, 0], fake_evoked.info,show=True)
+    plt.cla()
+    # Plot topomap on current axes
+    im,_ = mne.viz.plot_topomap(fake_evoked.data[:, 0], fake_evoked.info,show=True,axes=plt.gca())
     # Annotate plot
     plt.title(title)
     cbar = plt.colorbar(im,label=cbar_label)
-    
+
     # return image and colorbar objects
     return im,cbar
 
@@ -76,13 +80,13 @@ def plot_topo(channel_names=[], channel_data=[],title='',cbar_label='Voltage (uV
 # Helper and QA functions
 def get_channel_names(montage_name='biosemi64'):
     """
-    Returns all the channels contained in a given montage. Useful for checking 
+    Returns all the channels contained in a given montage. Useful for checking
     capitalization conventions and subsets of channels found in a given montage.
 
     Parameters
     ----------
     montage_name : str, optional
-        Name of the channel montage to use (must be valid input to 
+        Name of the channel montage to use (must be valid input to
         mne.channels.make_standard_montage). The default is 'biosemi64'.
 
     Returns

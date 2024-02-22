@@ -332,7 +332,7 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     #    for sample_index in range(corrected_p_values.shape[1]):
     #        if corrected_p_values[channel_index,sample_index] <= alpha:
     #            significant_samples[channel_index,sample_index] = 1
-    return significant_samples,significant_plot_samples, corrected_p_values, is_significant_int
+    return significant_plot_samples, corrected_p_values, is_significant_int
     
     
 def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
@@ -447,7 +447,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
         #Load and Epoch subject data
         eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
         #Compute Bootstrapped Distribution and p-values
-        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
         epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
         #Compute FDR Correctec P-values
         significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)

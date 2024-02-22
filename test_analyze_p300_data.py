@@ -55,24 +55,33 @@ epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distrib
 
 significant_plot_samples, corrected_p_values, is_significant_int = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
 
-analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
+analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times,subject)
 
 #%% Part E: Evaluate across subjects
 #Define constants
 first_subject_index=3
 last_subject_index=10
 
-significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean=analyze_p300_data.analyze_across_subjects(first_subject_index,last_subject_index,data_directory)
+significant_subject_count,erp_times,combined_erp_target_median,combined_erp_nontarget_median,subjects_target_median,subjects_nontarget_median=analyze_p300_data.analyze_across_subjects(first_subject_index,last_subject_index,data_directory)
 
 analyze_p300_data.plot_significance_across_subjects(significant_subject_count,erp_times)
 
 #%% Part F: Plot Spatial Map
-
-p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, 0.25, 0.5)
-n200_target_range,n200_nontarget_range=analyze_p300_data.get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, 0.2, 0.350)
-
-#%%
 channel_names=['P4','PO8','P3','PO7','Oz','Fz','Cz','Pz']
+#Subject 3
+p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_erp_range(erp_times,subjects_target_median[0,:,:],subjects_nontarget_median[0,:,:], 0.25, 0.5)
+n200_target_range,n200_nontarget_range=analyze_p300_data.get_erp_range(erp_times,subjects_target_median[0,:,:],subjects_nontarget_median[0,:,:], 0.2, 0.350)
+
+plot_topo.plot_topo(channel_names,p3b_target_range)
+plot_topo.plot_topo(channel_names,p3b_nontarget_range)
+plot_topo.plot_topo(channel_names,n200_target_range)
+plot_topo.plot_topo(channel_names,n200_nontarget_range)
+
+
+#Subject 8
+p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_erp_range(erp_times,subjects_target_median[5,:,:],subjects_nontarget_median[0,:,:], 0.25, 0.5)
+n200_target_range,n200_nontarget_range=analyze_p300_data.get_erp_range(erp_times,subjects_target_median[5,:,:],subjects_nontarget_median[0,:,:], 0.2, 0.350)
+
 plot_topo.plot_topo(channel_names,p3b_target_range)
 plot_topo.plot_topo(channel_names,p3b_nontarget_range)
 plot_topo.plot_topo(channel_names,n200_target_range)
