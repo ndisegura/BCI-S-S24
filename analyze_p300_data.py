@@ -301,7 +301,7 @@ def plot_significance_across_subjects(significant_subject_count,erp_times,save_l
     
     fig                                    # ... and show the plot
     plt.show()
-    plt.savefig(f'{save_location}/significant_subjects')
+    plt.savefig(f'{save_location}/significant_subjects.png')
     
     
 def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
