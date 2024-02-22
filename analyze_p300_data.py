@@ -70,13 +70,31 @@ def load_and_epoch_data(subject, data_directory):
     #Find Target and Non-Target Epochs
     eeg_epochs_target, eeg_epochs_nontarget = plot_p300_erp.get_erps(eeg_epochs, is_target_event)
     #Visualize ERPs
-    # plot_p300_erp.plot_erps(eeg_epochs_target, eeg_epochs_nontarget, erp_times)
-    # plt.show()
+    plot_p300_erp.plot_erps(eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+    plt.show()
 
     
     return eeg_epochs,eeg_epochs_target, eeg_epochs_nontarget, erp_times
     
 def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times, subject = 3):
+    """
+    Function to compute the mean and standar deviation error of the target and non target epochs.Then this information is used to compute
+    the 95% confidence intervals and ploting the corresponding error bars as fill between upper and lower confidence intervals
+
+    Parameters
+    ----------
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+    subject : String, optional. String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
+
+    Returns
+    -------
+    None.
+
+    """
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
