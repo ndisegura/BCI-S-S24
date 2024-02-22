@@ -47,7 +47,7 @@ analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg
 
 #%% Part C: Bootstrap P values
 
-bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
 epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
 
 

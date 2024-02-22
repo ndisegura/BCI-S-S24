@@ -47,13 +47,13 @@ def load_and_epoch_data(subject, data_directory):
         
     Returns
     -------
-    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    eeg_epochs : Numpy array of floats of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
-    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
-    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch 
@@ -83,9 +83,9 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
 
     Parameters
     ----------
-    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
-    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
     subject : String, optional. String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
@@ -143,7 +143,7 @@ def resample_data(input_data, number_iterations):
 
     Parameters
     ----------
-    input_data : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    input_data : Numpy array of floats of  size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
        
     number_iterations : Integer. This number specifies the number of times "input_data" is resampled
@@ -151,7 +151,7 @@ def resample_data(input_data, number_iterations):
 
     Returns
     -------
-    Numpy array of size CHANNEL x SAMPLES where each value is the mean average of the input data across the TRIALS or axis 0
+    Numpy array of float of size CHANNEL x SAMPLES where each value is the mean average of the input data across the TRIALS or axis 0
         DESCRIPTION.
 
     """
@@ -181,13 +181,13 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
 
     Parameters
     ----------
-    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    eeg_epochs : Numpy array of floats of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
-    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
-    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     
     bootstrap_count : Integer. This number specifies the number of times the data is bootstrapped or resampled before the mean is computed.
@@ -195,7 +195,7 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
 
     Returns
     -------
-    bootstrapped_distribution : Numpy arrray of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
+    bootstrapped_distribution : Numpy arrray of floats of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
     data was resampled at ramdom
         
 
@@ -217,17 +217,18 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
 
 def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times):
     """
-    Function to compute the p-value from the bootstrapped distribution of epoched data
+    Function to compute the p-values from the bootstrapped distribution of epoched data. The p-value is found by counting the number of times
+    the statistic test under the null hypothesis (e.g target vs non-target difference is zero) is greater than the bootstrapped distribution
 
     Parameters
     ----------
-    bootstrapped_distribution : Numpy arrray of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
+    bootstrapped_distribution : Numpy arrray of floats of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
     data was resampled at ramdom
         
-    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
         
-    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
     channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     
     erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
@@ -300,6 +301,29 @@ def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs
 
 
 def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
+    """
+    Function to use False Discovery Rate (FDR) correction to correct  the p-values for multiple comparissons 
+    to an alpha value specified in the function arguments
+
+    Parameters
+    ----------
+    epoch_diff_p_values : Numpy array of floats of size CHANNELS x SAMPLES containig the p-values obtained previously using the
+    bootstrap method
+        DESCRIPTION.
+    alpha : float, optional. the probability that a null finding will be called significant to be less than this number
+    The default is 0.05.
+
+    Returns
+    -------
+    significant_plot_samples : Array of object containing elements with value of either None or "0" corresponding to the points in time 
+    when either the sample is significant or not
+        
+    corrected_p_values : Numpy array of floats of size CHANNELS x SAMPLES containig the corrected p-values
+        
+    is_significant_int : Numpy array of integers of size CHANNELS x SAMPLES where each "one" marks the point in time where the difference is significant
+        
+
+    """
     
     significant_samples, corrected_p_values = fdr_correction(epoch_diff_p_values, alpha)
     
@@ -315,6 +339,31 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     
     
 def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
+    """
+    Function to plot the mean, standard deviation error and significant differences dot     
+
+    Parameters
+    ----------
+    eeg_epochs_target : Numpy array of floats of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of floats of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    
+    significant_plot_samples : Array of object containing elements with value of either None or "0" corresponding to the points in time 
+    when either the sample is significant or no
+    
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+        
+    subject : Integer, optional. Number that specifies the subject number for the purpose of labeling the plot. The default is 3.
+    save_location : string to specify where should the figure be saved with respect to the project base location. Optional
+    The default is './'.
+
+    Returns
+    -------
+    None.
+
+    """
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -322,8 +371,6 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     
     #Compute the standard deviation and std error
     target_std=np.std(eeg_epochs_target, axis=0)/math.sqrt(eeg_epochs_target.shape[0]) #Divide by number of trials
-    #target_std=np.std(eeg_epochs_target, axis=0)#I believe np.std aready divives by n
-    #nontarget_std=np.std(eeg_epochs_nontarget, axis=0) 
     nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ math.sqrt(eeg_epochs_nontarget.shape[0]) #Divide by number of trials
        
     
