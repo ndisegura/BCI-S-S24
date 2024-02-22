@@ -5,6 +5,11 @@ BME 6770: BCI's Lab 02
 Dr. David Jangraw
 2/12/2024
 
+This script intends to explore the results of a
+P300 based BCI 2D experiment (Guger et al. 2009) in which subjects were asked to spell
+a word based on their attention re-orienting response (P300 ERP). The scrips calls functions defined
+in the analyze_p300_data.py file to produce mean and confidence Intervals plots as well as 
+identifuing statistical significant difference between target vs nontarget events for each EEG samples 
 """
 
 
@@ -34,42 +39,44 @@ data_file=f'{cwd}{data_directory}s{subject}.mat'
 
 #%% Part A: Load and Epoch the Data
 
-# eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_epoch_data(subject, data_directory)
+eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=analyze_p300_data.load_and_epoch_data(subject, data_directory)
 
-# #%% Part B: Calculate and Plot Parametric Confidence Intervals
+#%% Part B: Calculate and Plot Parametric Confidence Intervals
 
-# analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget,erp_times, subject)
+analyze_p300_data.calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget,erp_times, subject)
 
-# #%% Part C: Bootstrap P values
+#%% Part C: Bootstrap P values
 
-# #analyze_p300_data.resample_data(eeg_epochs_target[:,0,0], eeg_epochs_target.shape[0])
-# #resampled_target_epochs=analyze_p300_data.resample_data(eeg_epochs_target, 1000)
-# bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,1000)
-# epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+bootstrapped_distribution=analyze_p300_data.bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,1000)
+epoch_diff_p_values = analyze_p300_data.find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
 
 
-# #%% Part D: Multiple comparisons
+#%% Part D: Multiple comparisons
 
-# significant_plot_samples, corrected_p_values, is_significant_int = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
+significant_plot_samples, corrected_p_values, is_significant_int = analyze_p300_data.p_value_fdr_correction(epoch_diff_p_values)
 
-# analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
+analyze_p300_data.plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
 
 #%% Part E: Evaluate across subjects
 #Define constants
 first_subject_index=3
 last_subject_index=10
-data_path=cwd+data_directory+"s"
+
 significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean=analyze_p300_data.analyze_across_subjects(first_subject_index,last_subject_index,data_directory)
 
 analyze_p300_data.plot_significance_across_subjects(significant_subject_count,erp_times)
 
 #%% Part F: Plot Spatial Map
 
-p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, 0.25, 0.5)
+p3b_target_range,p3b_nontarget_range=analyze_p300_data.get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, 0.25, 0.5)
+n200_target_range,n200_nontarget_range=analyze_p300_data.get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, 0.2, 0.350)
 
 #%%
 channel_names=['P4','PO8','P3','PO7','Oz','Fz','Cz','Pz']
 plot_topo.plot_topo(channel_names,p3b_target_range)
-#a=plot_topo.get_channel_names()
+plot_topo.plot_topo(channel_names,p3b_nontarget_range)
+plot_topo.plot_topo(channel_names,n200_target_range)
+plot_topo.plot_topo(channel_names,n200_nontarget_range)
+
 
 

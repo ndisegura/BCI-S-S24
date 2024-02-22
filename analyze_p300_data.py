@@ -34,7 +34,7 @@ data_directory='course_software/P300Data/'
 def load_and_epoch_data(subject, data_directory):
     
     #Load Training Data
-    [eeg_time,eeg_data,rowcol_id,is_target]=load_p300_data.load_training_eeg(subject=3, data_directory=data_directory);
+    [eeg_time,eeg_data,rowcol_id,is_target]=load_p300_data.load_training_eeg(subject, data_directory=data_directory);
     #Find Event Samples
     event_sample, is_target_event=plot_p300_erp.get_events(rowcol_id, is_target)
     #Extract the Epochs
@@ -259,7 +259,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
         #Load and Epoch subject data
         eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
         #Compute Bootstrapped Distribution and p-values
-        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,500)
         epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
         #Compute FDR Correctec P-values
         significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
@@ -304,13 +304,13 @@ def plot_significance_across_subjects(significant_subject_count,erp_times,save_l
     plt.savefig(f'{save_location}/significant_subjects.png')
     
     
-def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
+def get_erp_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
     
-    is_p3b_range = np.zeros(erp_times.shape)
-    is_p3b_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
-    p3b_target_range=combined_erp_target_mean[:,np.where(is_p3b_range)]
-    p3b_target_range=np.squeeze(p3b_target_range,axis=1)
-    p3b_nontarget_range=combined_erp_nontarget_mean[:,np.where(is_p3b_range)]
-    p3b_nontarget_range=np.squeeze(p3b_nontarget_range,axis=1)
+    is_erp_range = np.zeros(erp_times.shape)
+    is_erp_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
+    erp_target_range=combined_erp_target_mean[:,np.where(is_erp_range)]
+    erp_target_range=np.squeeze(erp_target_range,axis=1)
+    erp_nontarget_range=combined_erp_nontarget_mean[:,np.where(is_erp_range)]
+    erp_nontarget_range=np.squeeze(erp_nontarget_range,axis=1)
     
-    return p3b_target_range,p3b_nontarget_range
+    return erp_target_range,erp_nontarget_range
