@@ -5,6 +5,10 @@ BME 6770: BCI's Lab 02
 Dr. David Jangraw
 2/12/2024
 
+This module provides functions for processing and analyzing raw EEG data from the subjects in the Guger et al. 2009 paper.
+The fuunctions allow to load the data from the .mat files, calculate confidence intervals, perform the bootstraping statistics technique,
+compute p-values, analyze across subjects and to plot significance between the target and non target erp events. 
+
 """
 
 
@@ -32,9 +36,33 @@ data_directory='course_software/P300Data/'
 
 
 def load_and_epoch_data(subject, data_directory):
+    """
+    Loads data from Matlab .Mat files and arranges the data in a 3-dimentional array consisting of event epochs, eeg channels and samples
+
+    Parameters
+    ----------
+    subject : String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
+        
+    data_directory : String specifying the location of the base of the project 
+        
+    Returns
+    -------
+    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch 
+        
+
+    """
     
     #Load Training Data
-    [eeg_time,eeg_data,rowcol_id,is_target]=load_p300_data.load_training_eeg(subject=3, data_directory=data_directory);
+    [eeg_time,eeg_data,rowcol_id,is_target]=load_p300_data.load_training_eeg(subject, data_directory=data_directory);
     #Find Event Samples
     event_sample, is_target_event=plot_p300_erp.get_events(rowcol_id, is_target)
     #Extract the Epochs
@@ -48,7 +76,25 @@ def load_and_epoch_data(subject, data_directory):
     
     return eeg_epochs,eeg_epochs_target, eeg_epochs_nontarget, erp_times
     
-def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times):
+def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontarget, erp_times, subject = 3):
+    """
+    Function to compute the mean and standar deviation error of the target and non target epochs.Then this information is used to compute
+    the 95% confidence intervals and ploting the corresponding error bars as fill between upper and lower confidence intervals
+
+    Parameters
+    ----------
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+    subject : String, optional. String containing the number of the .mat file to be read. the string is used to construct the file name (e.g. s3.mat)
+
+    Returns
+    -------
+    None.
+
+    """
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -61,7 +107,7 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     nontarget_std=np.std(eeg_epochs_nontarget, axis=0)/ math.sqrt(eeg_epochs_nontarget.shape[0]) #Divide by number of trials
     
     #Plot the results
-    fig, axs = plt.subplots(3,3)
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -86,8 +132,8 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
+    fig.suptitle(f'Subject {subject} P300 ERPs 95% Confidence Intervals ')
     plt.tight_layout()
-    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
     fig                                    # ... and show the plot
     plt.show()
     
@@ -199,10 +245,10 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     #    for sample_index in range(corrected_p_values.shape[1]):
     #        if corrected_p_values[channel_index,sample_index] <= alpha:
     #            significant_samples[channel_index,sample_index] = 1
-    return significant_samples,significant_plot_samples, corrected_p_values, is_significant_int
+    return significant_plot_samples, corrected_p_values, is_significant_int
     
     
-def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times):
+def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -216,7 +262,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
        
     
     #Plot the results
-    fig, axs = plt.subplots(3,3, figsize = (11,9))
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
     
     
     for plot_index, ax in enumerate(axs.flatten()):
@@ -240,13 +286,77 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
             ax.set_xlabel('Time from flash onset (s)')
             ax.set_ylabel('Voltage ($\mu$ V)')
         
-            ax.legend(loc = 'upper left', fontsize = 7)
-            # ax.set_size_inches(8, 6)
+            ax.legend(loc = 'upper left', fontsize=7)
             ax.grid()
             ax.axvline(x=0, color='black', linestyle='--')
             ax.axhline(y=0, color='black', linestyle='--')
+    fig.suptitle(f'Subject {subject} P300 ERPs 95% Confidence Intervals ')
     plt.tight_layout()
-    fig.suptitle(' P300 ERPs 95% Confidence Intervals ')
     fig                                    # ... and show the plot
     plt.show()
+    plt.savefig(f"{save_location}/P300_S{subject}_erps_significance.png")
     
+def analyze_across_subjects(first_subject_index,last_subject_index,data_directory, array_shape=(8,384)):
+    significant_subject_count=np.zeros(array_shape)
+    subjects_target_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    subjects_nontarget_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    for subject_index, subject_id in enumerate(range(first_subject_index,last_subject_index+1)):
+        print(f'Subject Index:{subject_index}')
+        #Load and Epoch subject data
+        eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget, erp_times=load_and_epoch_data(subject_id, data_directory)
+        #Compute Bootstrapped Distribution and p-values
+        bootstrapped_distribution=bootstrap_eeg_erp(eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,3000)
+        epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
+        #Compute FDR Correctec P-values
+        significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
+        #Plot and save each subject's ERPs
+        plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times,subject_id)
+        #Accumulate number of subject that pass the significant threshold
+        significant_subject_count=significant_subject_count+is_significant_int
+        
+        #Compute the median for Target and Non-targets
+        subjects_target_median[subject_index,:,:]=np.median(eeg_epochs_target, axis=0)
+        subjects_nontarget_median[subject_index,:,:]=np.median(eeg_epochs_nontarget, axis=0)
+        
+    combined_erp_target_median=np.median(subjects_target_median,axis=0)
+    combined_erp_nontarget_median=np.median(subjects_nontarget_median,axis=0)
+    return significant_subject_count,erp_times,combined_erp_target_median,combined_erp_nontarget_median,subjects_target_median,subjects_nontarget_median
+
+def plot_significance_across_subjects(significant_subject_count,erp_times,save_location='./'):
+    #Plot the results
+    fig, axs = plt.subplots(3,3, figsize=(9,8))
+    
+    
+    for plot_index, ax in enumerate(axs.flatten()):
+        if plot_index == 8:
+            if significant_subject_count.shape[0] == 8 :
+                ax.set_visible(False) #This channel doesn't exist
+        else:
+            # Plot target
+            ax.plot(erp_times, significant_subject_count[plot_index,:], 'b', lw=1,label='Significant Samples')
+            ax.set_title(f'Channel {plot_index}')
+            ax.set_xlabel('Time from flash onset (s)')
+            ax.set_ylabel('Significant Subjects')
+        
+            ax.legend(loc = 'upper left', fontsize=7)
+            ax.grid()
+            ax.axvline(x=0, color='black', linestyle='--')
+            ax.axhline(y=0, color='black', linestyle='--')
+    fig.suptitle(' Significant Samples Across Subjects ')
+    plt.tight_layout()
+    
+    fig                                    # ... and show the plot
+    plt.show()
+    plt.savefig(f'{save_location}/significant_subjects.png')
+    
+    
+def get_erp_range(erp_times,subjects_target_median,subjects_nontarget_median, start_time = 0.25, end_time = 0.5):
+    
+    is_erp_range = np.zeros(erp_times.shape)
+    is_erp_range=np.where(((erp_times>=start_time)&(erp_times<=end_time)), 1,0)
+    erp_target_range=subjects_target_median[:,np.where(is_erp_range)]
+    erp_target_range=np.squeeze(erp_target_range,axis=1)
+    erp_nontarget_range=subjects_nontarget_median[:,np.where(is_erp_range)]
+    erp_nontarget_range=np.squeeze(erp_nontarget_range,axis=1)
+    
+    return erp_target_range,erp_nontarget_range
