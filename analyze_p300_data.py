@@ -439,9 +439,9 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
     #Declare variable to hold the counts
     significant_subject_count=np.zeros(array_shape)
     #Array to store the means across subjects x channel x samples
-    subjects_target_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    subjects_target_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
     #Same for the non-target means
-    subjects_nontarget_mean=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
+    subjects_nontarget_median=np.zeros((last_subject_index-first_subject_index+1,array_shape[0],array_shape[1]))
     for subject_index, subject_id in enumerate(range(first_subject_index,last_subject_index+1)):
         print(f'Subject Index:{subject_index}')
         #Load and Epoch subject data
