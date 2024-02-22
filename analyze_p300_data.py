@@ -202,7 +202,7 @@ def p_value_fdr_correction(epoch_diff_p_values, alpha = 0.05):
     return significant_plot_samples, corrected_p_values, is_significant_int
     
     
-def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3):
+def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times, subject = 3,save_location='./'):
     
     #Compute the Mean for Target and Non-targets
     target_mean=np.mean(eeg_epochs_target, axis=0)
@@ -248,6 +248,7 @@ def plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significa
     plt.tight_layout()
     fig                                    # ... and show the plot
     plt.show()
+    plt.savefig(f"{save_location}/P300_S{subject}_erps_significance.png")
     
 def analyze_across_subjects(first_subject_index,last_subject_index,data_directory, array_shape=(8,384)):
     significant_subject_count=np.zeros(array_shape)
@@ -262,6 +263,8 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
         epoch_diff_p_values = find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times)
         #Compute FDR Correctec P-values
         significant_plot_samples, corrected_p_values, is_significant_int = p_value_fdr_correction(epoch_diff_p_values)
+        #Plot and save each subject's ERPs
+        plot_significant_p_values(eeg_epochs_target, eeg_epochs_nontarget, significant_plot_samples, erp_times)
         #Accumulate number of subject that pass the significant threshold
         significant_subject_count=significant_subject_count+is_significant_int
         
@@ -273,7 +276,7 @@ def analyze_across_subjects(first_subject_index,last_subject_index,data_director
     combined_erp_nontarget_mean=np.mean(subjects_nontarget_mean,axis=0)
     return significant_subject_count,erp_times,combined_erp_target_mean,combined_erp_nontarget_mean
 
-def plot_significance_across_subjects(significant_subject_count,erp_times):
+def plot_significance_across_subjects(significant_subject_count,erp_times,save_location='./'):
     #Plot the results
     fig, axs = plt.subplots(3,3, figsize=(9,8))
     
@@ -298,6 +301,9 @@ def plot_significance_across_subjects(significant_subject_count,erp_times):
     
     fig                                    # ... and show the plot
     plt.show()
+    plt.savefig(f'{save_location}/significant_subjects')
+    
+    
 def get_p3b_range(erp_times,combined_erp_target_mean,combined_erp_nontarget_mean, start_time = 0.25, end_time = 0.5):
     
     is_p3b_range = np.zeros(erp_times.shape)
