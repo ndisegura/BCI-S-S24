@@ -138,6 +138,23 @@ def calculate_and_plot_confidence_intervals(eeg_epochs_target, eeg_epochs_nontar
     plt.show()
     
 def resample_data(input_data, number_iterations):
+    """
+    Function to perform re-sampling of the data at random with replacement 
+
+    Parameters
+    ----------
+    input_data : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+       
+    number_iterations : Integer. This number specifies the number of times "input_data" is resampled
+        
+
+    Returns
+    -------
+    Numpy array of size CHANNEL x SAMPLES where each value is the mean average of the input data across the TRIALS or axis 0
+        DESCRIPTION.
+
+    """
     #Declare numpy vector to store the re-sampled data
     resampled_data=np.zeros((number_iterations,input_data.shape[1],input_data.shape[2]))
     
@@ -158,7 +175,32 @@ def resample_data(input_data, number_iterations):
     return np.mean(resampled_data, axis=0)
 
 def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,bootstrap_count):
+    """
+    Function to compute a bootstrapped distribution of the means for the target and non target eeg epochs under the NULL hypothesis
+    that there is no difference between the mean target and mean non-target erps
+
+    Parameters
+    ----------
+    eeg_epochs : Numpy array of size TRIALS x CHANNELS x SAMPLES where TRIALS is the number of times a target or non target letter was flahsed
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
     
+    bootstrap_count : Integer. This number specifies the number of times the data is bootstrapped or resampled before the mean is computed.
+        
+
+    Returns
+    -------
+    bootstrapped_distribution : Numpy arrray of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
+    data was resampled at ramdom
+        
+
+    """
+    #Define the array that will contained the bootstrapped distribution for each channel and eeg samples
     bootstrapped_distribution=np.zeros([bootstrap_count,eeg_epochs.shape[1],eeg_epochs.shape[2]])
     for bootstrap_index in range(bootstrap_count):
         print(f'Loop count:{bootstrap_index}')
@@ -174,6 +216,30 @@ def bootstrap_eeg_erp (eeg_epochs, eeg_epochs_target, eeg_epochs_nontarget,boots
 
 
 def find_sample_p_value(bootstrapped_distribution, eeg_epochs_target, eeg_epochs_nontarget, erp_times):
+    """
+    Function to compute the p-value from the bootstrapped distribution of epoched data
+
+    Parameters
+    ----------
+    bootstrapped_distribution : Numpy arrray of size bootstrap_count x CHANNELS x SAMPLES where each value is the mean across TRIALS after the
+    data was resampled at ramdom
+        
+    eeg_epochs_target : Numpy array of size TARGET x CHANNELS x SAMPLES which is a subset of eeg_epochs where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+        
+    eeg_epochs_nontarget : Numpy array of size TARGET x CHANNELS x SAMPLES where target are the event when a target letter was flashed,
+    channels is the number of channels extracted from the subject data and samples are the eeg voltage samples
+    
+    erp_times : 1-D Numpy array of floats of size SAMPLES x 1. This array contains time values for each epoch
+        
+
+    Returns
+    -------
+    epoch_diff_p_values : TYPE
+        DESCRIPTION.
+
+    """
+    
     # Find sample size
     bootstrapped_sample_size = bootstrapped_distribution.shape[0]
     
